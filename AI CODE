@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>CryptoAI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    background: #0d0d0f;
+    color: #fff;
+    font-family: Inter, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.app {
+    width: 100%;
+    max-width: 900px;
+    height: 90vh;
+    background: #141417;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+}
+header, footer {
+    padding: 16px;
+    border-bottom: 1px solid #222;
+}
+footer { border-top: 1px solid #222; display: flex; gap: 10px; }
+.chat {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+}
+.message {
+    padding: 12px 14px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    max-width: 75%;
+}
+.user { background: #2563eb; margin-left: auto; }
+.ai { background: #1f1f24; border: 1px solid #2a2a30; }
+input {
+    flex: 1;
+    padding: 14px;
+    background: #0f0f12;
+    border: 1px solid #2a2a30;
+    border-radius: 10px;
+    color: white;
+}
+button {
+    background: #2563eb;
+    border: none;
+    border-radius: 10px;
+    padding: 0 20px;
+    color: white;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+<header>
+    <h2>🤖 CryptoAI</h2>
+    <small>OpenAI bilan ishlaydi</small>
+</header>
+
+<div class="chat" id="chat">
+    <div class="message ai">
+        Salom! Crypto haqida savol ber.
+    </div>
+</div>
+
+<footer>
+    <input id="input" placeholder="Savolingni yoz..." />
+    <button onclick="send()">Yuborish</button>
+</footer>
+</div>
+
+<script>
+const API_KEY = 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
+
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+
+function add(text, cls) {
+    const d = document.createElement("div");
+    d.className = "message " + cls;
+    d.innerText = text;
+    chat.appendChild(d);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+async function send() {
+    const text = input.value.trim();
+    if (!text) return;
+    add(text, "user");
+    input.value = "";
+
+    add("Yozilmoqda...", "ai");
+
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + API_KEY
+        },
+        body: JSON.stringify({
+            model: "gpt-4.1-mini",
+            messages: [
+                { role: "system", content: "Sen crypto bo‘yicha o‘rgatuvchi AI’san." },
+                { role: "user", content: text }
+            ]
+        })
+    });
+
+    const data = await res.json();
+    chat.lastChild.remove();
+    add(data.choices[0].message.content, "ai");
+}
+
+input.addEventListener("keydown", e => {
+    if (e.key === "Enter") send();
+});
+</script>
+
+</body>
+</html>
